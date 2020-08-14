@@ -7,10 +7,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -41,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Incident> alIncidents = new ArrayList<Incident>();
     ArrayAdapter aa;
     private FirebaseFirestore db;
-    private CollectionReference colRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,9 +80,9 @@ public class MainActivity extends AppCompatActivity {
         });
         aa = new incidentAdapter(this, alIncidents);
         lv.setAdapter(aa);
-        db = FirebaseFirestore.getInstance();
-        colRef = db.collection("incidents");
+        Log.w("Count", String.valueOf(aa.getCount()));
 
+        db = FirebaseFirestore.getInstance();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -90,21 +92,59 @@ public class MainActivity extends AppCompatActivity {
                 final Double longitude = incident.getLongitude();
                 final String msg = incident.getMessage();
                 final Date date = incident.getDate();
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
-                builder.setMessage("Proceed to upload to Firestore?");
+
+
+            }
+        });
+
+
+
+
+
+
+
+    }
+    @Override
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.optione, menu);
+
+        return super.onCreateOptionsMenu(menu);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        int id=item.getItemId();
+
+        if(id == R.id.ViewAllMarkers){
+            return true;
+        }else if(id==R.id.Upload){
+
+            for(int i =0; i< aa.getCount();i++){
+
+                Incident incident = alIncidents.get(i);
+                final String type = incident.getType();
+                final Double latitude = incident.getLatitude();
+                final Double longitude = incident.getLongitude();
+                final String msg = incident.getMessage();
+                final Date date = incident.getDate();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("Upload to Firestore");
+                builder.setMessage("Proceed to upload to Firestore?");
                 builder.setIcon(R.drawable.ic_cloud_upload_24dp);
                 builder.setCancelable(false);
-               // Add the buttons
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User clicked OK button
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
                         Map<String, Object> data = new HashMap<>();
                         data.put("type", type);
-                        data.put("latitude", latitude);
-                        data.put("longitude", longitude);
-                        data.put("message", msg);
+                        data.put("latitude",latitude);
+                        data.put("longitude",longitude);
+                        data.put("message",msg);
                         data.put("date",date);
                         db.collection("incidents")
                                 .add(data)
@@ -117,21 +157,26 @@ public class MainActivity extends AppCompatActivity {
                                 .addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-                                        Log.w("TAG", "Error adding document", e);
-
+                                        Log.w("TAG","Error adding document",e);
                                     }
                                 });
 
                     }
                 });
-                builder.setNegativeButton("CANCEL", null);
-
-                // Create the AlertDialog
+                builder.setNegativeButton("CANCEL",null);
                 AlertDialog dialog = builder.create();
                 dialog.show();
-
             }
-        });
 
+
+            return true;
+        }else{
+            Toast.makeText(getApplicationContext(),"Error",Toast.LENGTH_SHORT).show();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
+
+
+
 }
