@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">C302_P12_PS</string>
+    <string name="title_activity_maps">Map</string>
 </resources>

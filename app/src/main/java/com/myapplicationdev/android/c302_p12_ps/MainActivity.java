@@ -5,6 +5,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -87,12 +88,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Incident incident = alIncidents.get(position);
-                final String type = incident.getType();
-                final Double latitude = incident.getLatitude();
-                final Double longitude = incident.getLongitude();
-                final String msg = incident.getMessage();
-                final Date date = incident.getDate();
+                String type = incident.getType();
+                Double latitude = incident.getLatitude();
+                Double longitude = incident.getLongitude();
+                String msg = incident.getMessage();
 
+                Intent i = new Intent(MainActivity.this,MapsActivity.class);
+                i.putExtra("lat",latitude);
+                i.putExtra("lng",longitude);
+                i.putExtra("type",type);
+                i.putExtra("msg",msg);
+                startActivity(i);
 
 
             }
